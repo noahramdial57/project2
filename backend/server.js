@@ -19,7 +19,6 @@ module.exports.call = async function call(operation, parameters, callback) {
     const db = client.db(dbName);
     // set the collection to use
     var collection = db.collection(collectionName);
-
     //Execute Operations
     // available operations: 
     // ['initbooks'|'clearbooks'|'findallbooks'|'findbook'|'updatebook' ]
@@ -51,15 +50,30 @@ module.exports.call = async function call(operation, parameters, callback) {
             const planet = await collection.findOne({ id: parameters.id });
             callback({ planet:planet });
             break;
-
-        case 'updatebook':
-            await collection.updateOne(
-                { isbn: parameters.book.isbn },
-                {$set: parameters.book},
-                {upsert: true});
-            callback({ status: 'item updated:'+parameters.book.isbn });
+        
+        case 'findcharacter':
+            collectionName = "characters";
+            collection = db.collection(collectionName);
+            const character = await collection.findOne({id: parameters.id});
+            callback({character: character});
+            break;
+        
+        case 'findfilm':
+            collectionName = "films";
+            collection = db.collection(collectionName);
+            const film = await collection.findOne({id: parameters.id});
+            callback({film: film});
             break;
 
+        /*case 'findfilmcharacters':
+            collectionName = "films";
+            collection = db.collection(collectionName);
+            const filmcharacterid = await collection.find({film_id: parameters.id}).toArray();
+            for (let i = 0; i < filmcharacterid.length; i++){
+                findcharacters("characters", collectionName);
+            }
+            callback({film: film});
+            break;*/
         default:
             break;
     }

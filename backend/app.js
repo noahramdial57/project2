@@ -8,7 +8,7 @@ var app = express();
 //Parse JSON body
 app.use(bodyParser.json());
 
-// initBooks
+//get all planets
 app.get("/api/planets", (req, res) => {
     dao.call('getplanets',{}, (result)=>{
         console.log("result: " + result);
@@ -16,7 +16,7 @@ app.get("/api/planets", (req, res) => {
     })
 });
 
-// clearBooks
+//get all characters
 app.get("/api/characters", (req, res) => {
   dao.call('getcharacters',{}, (result)=>{
       console.log("result: " + result);
@@ -24,6 +24,7 @@ app.get("/api/characters", (req, res) => {
   })
 });
 
+//get all films
 app.get("/api/films", (req, res) => {
   dao.call('getfilms',{}, (result)=>{
       console.log("result: " + result);
@@ -31,19 +32,7 @@ app.get("/api/films", (req, res) => {
   })
 });
 
-// findAllBooks
-app.get("/books", (req, res) => {
-    dao.call('findAllBooks', {}, (result) => {
-        if (result.books !== undefined) {
-            res.send(result.books);
-        } else {
-            res.statusCode = 404;
-            res.end();
-        }
-    });
-});
-
-// findOneBook
+// find one planet
 app.get("/planets/:id", (req, res) => {
     let parse = req.url.split('/');
     let id = parseInt(parse[2]);
@@ -57,28 +46,55 @@ app.get("/planets/:id", (req, res) => {
     });
 });
 
-// updateBook
-app.put("/books/:isbn", (req, res) => {
-    if (req.params.isbn === undefined || req.body === undefined) {
-        res.statusCode = 500;
-        res.end();
-        return;
-    }
-    // use isbn from path if available
-    let isbn = req.params.isbn;
-    if (isbn != undefined) {
-        req.body.isbn = isbn;
-    }
-    // make call to db
-    dao.call('updateBook', { book: req.body, isbn: isbn }, (result) => {
-        if (result.status !== undefined) {
-            res.send(result.status);
+//find one character
+app.get("/characters/:id", (req, res) => {
+    let parse = req.url.split('/');
+    let id = parseInt(parse[2]);
+    dao.call('findcharacter', { id }, (result) => {
+        if (result.character !== undefined) {
+            res.send(result.character);
         } else {
             res.statusCode = 404;
             res.end();
         }
     });
 });
+
+//find one film
+app.get("/films/:id", (req, res) => {
+    let parse = req.url.split('/');
+    let id = parseInt(parse[2]);
+    dao.call('findfilm', { id }, (result) => {
+        if (result.film !== undefined) {
+            res.send(result.film);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+});
+
+//films->characters
+/*app.get("/films/:id", (req, res) => {
+    let parse = req.url.split('/');
+    let id = parseInt(parse[2]);
+    dao.call('findfilm', { id }, (result) => {
+        if (result.film !== undefined) {
+            res.send(result.film);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+    dao.call('getcharacters',{}, (endresult)=>{
+        console.log("result: " + endresult);
+        res.send(result);
+    })
+});*/
+//films->planets
+//characters->films
+//planets->films
+//planets->characters
 
 // start the rest service
 var port = 3000;
