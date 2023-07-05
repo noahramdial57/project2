@@ -97,7 +97,7 @@ app.get("/films/:id", (req, res) => {
 //planets->characters
 
 // start the rest service
-var port = 3000;
+var port = 4000;
 console.log('service opening on port: ' + port)
 app.listen(port);
 

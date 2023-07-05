@@ -1,12 +1,31 @@
 import logo from "./logo.svg";
 import "./App.css";
 import { useState, useEffect} from 'react';
+const { MongoClient } = require('mongodb');
 
-function App() {
-  return (
-    <Home />
-  );
-}
+const databasename = "swapi";
+var url = "mongodb://localhost:27017";
+const client = new MongoClient(url);
+
+
+/*useEffect(()=>{
+  fetch('http://localhost:3000/api/characters')           //api for the get request
+  .then(response => response.json())
+  .then(data => console.log(data));
+}, [])*/
+  
+MongoClient.connect(url).then((client) => {
+   const connect = client.db(databasename)
+   connect.listCollections().toArray(function(err, names) {   
+       if(!err) {
+           console.log(names)
+       }
+   });
+}).catch((err) => {
+ 
+   // Printing the error message
+   console.log(err.Message);
+})
 
 const Home = () => {
   // const [data, setData] = useState();
