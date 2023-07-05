@@ -1,52 +1,104 @@
-const express = require('express')
-const { MongoClient } = require('mongodb');
+const express = require('express');
+const bodyParser = require('body-parser');
+var dao = require("./server");
 
+// server app
+var app = express();
 
-// Connection URL
-const url = 'mongodb://localhost:27017';
-const client = new MongoClient(url);
+//Parse JSON body
+app.use(bodyParser.json());
 
-const app = express();
-
-app.listen(3000, () =>
-  console.log('Swapi app listening on port 3000!'),
-);
-
-
-app.get('/api/planets', (req, res) => {
-  // const database = client.db('swapi');
-  // const planets = database.collection('planets');
-  // // Query for a movie that has the title 'Back to the Future'
-  // const query = { id: '1' };
-  // const movie = planets.findOne(query);
-  // console.log(planets)
-  // console.log(movie)
-
-  
-  // res.send(movie);
-  run()
-
-  
+//get all planets
+app.get("/api/planets", (req, res) => {
+    dao.call('getplanets',{}, (result)=>{
+        console.log("result: " + result);
+        res.send(result);
+    })
 });
 
+//get all characters
+app.get("/api/characters", (req, res) => {
+  dao.call('getcharacters',{}, (result)=>{
+      console.log("result: " + result);
+      res.send(result);
+  })
+});
 
-async function run() {
-  try {
-    const database = client.db('swapi');
-    const planets = database.collection('planets');
-    // Query for a movie that has the title 'Back to the Future'
-    const query = { id: '1' };
-    const movie = await planets.findOne(query);
-    console.log(planets)
-    console.log(movie)
+//get all films
+app.get("/api/films", (req, res) => {
+  dao.call('getfilms',{}, (result)=>{
+      console.log("result: " + result);
+      res.send(result);
+  })
+});
 
-    res.send(movie)
-    
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
+// find one planet
+app.get("/planets/:id", (req, res) => {
+    let parse = req.url.split('/');
+    let id = parseInt(parse[2]);
+    dao.call('findplanet', { id }, (result) => {
+        if (result.planet !== undefined) {
+            res.send(result.planet);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+});
 
+//find one character
+app.get("/characters/:id", (req, res) => {
+    let parse = req.url.split('/');
+    let id = parseInt(parse[2]);
+    dao.call('findcharacter', { id }, (result) => {
+        if (result.character !== undefined) {
+            res.send(result.character);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+});
+
+//find one film
+app.get("/films/:id", (req, res) => {
+    let parse = req.url.split('/');
+    let id = parseInt(parse[2]);
+    dao.call('findfilm', { id }, (result) => {
+        if (result.film !== undefined) {
+            res.send(result.film);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+});
+
+//films->characters
+/*app.get("/films/:id", (req, res) => {
+    let parse = req.url.split('/');
+    let id = parseInt(parse[2]);
+    dao.call('findfilm', { id }, (result) => {
+        if (result.film !== undefined) {
+            res.send(result.film);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+    dao.call('getcharacters',{}, (endresult)=>{
+        console.log("result: " + endresult);
+        res.send(result);
+    })
+});*/
+//films->planets
+//characters->films
+//planets->films
+//planets->characters
+
+// start the rest service
+var port = 3000;
+console.log('service opening on port: ' + port)
+app.listen(port);
   
   
