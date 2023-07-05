@@ -1,52 +1,77 @@
-const express = require('express')
-const { MongoClient } = require('mongodb');
+const express = require('express');
+const bodyParser = require('body-parser');
+var dao = require("./data_access");
 
+// server app
+var app = express();
 
-// Connection URL
-const url = 'mongodb://localhost:27017';
-const client = new MongoClient(url);
+//Parse JSON body
+app.use(bodyParser.json());
 
-const app = express();
-
-app.listen(3000, () =>
-  console.log('Swapi app listening on port 3000!'),
-);
-
-
-app.get('/api/planets', (req, res) => {
-  // const database = client.db('swapi');
-  // const planets = database.collection('planets');
-  // // Query for a movie that has the title 'Back to the Future'
-  // const query = { id: '1' };
-  // const movie = planets.findOne(query);
-  // console.log(planets)
-  // console.log(movie)
-
-  
-  // res.send(movie);
-  run()
-
-  
+// initBooks
+app.get("/init", (req, res) => {
+    dao.call('initbooks',{}, (result)=>{
+        console.log("result: " + result.status);
+        res.send('done with init');
+    })
 });
 
+// clearBooks
+app.get("/clear", (req, res) => {
+    dao.call('clearBooks',{}, (result)=>{
+        console.log("result: " + (result.status));
+        res.send('done with clear');
+    })
+});
 
-async function run() {
-  try {
-    const database = client.db('swapi');
-    const planets = database.collection('planets');
-    // Query for a movie that has the title 'Back to the Future'
-    const query = { id: '1' };
-    const movie = await planets.findOne(query);
-    console.log(planets)
-    console.log(movie)
+// findAllBooks
+app.get("/books", (req, res) => {
+    dao.call('findAllBooks', {}, (result) => {
+        if (result.books !== undefined) {
+            res.send(result.books);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+});
 
-    res.send(movie)
-    
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
+// findOneBook
+app.get("/books/:isbn", (req, res) => {
+    dao.call('findBook', { isbn: req.params.isbn }, (result) => {
+        if (result.book !== undefined) {
+            res.send(result.book);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+});
 
-  
-  
+// updateBook
+app.put("/books/:isbn", (req, res) => {
+    if (req.params.isbn === undefined || req.body === undefined) {
+        res.statusCode = 500;
+        res.end();
+        return;
+    }
+    // use isbn from path if available
+    let isbn = req.params.isbn;
+    if (isbn != undefined) {
+        req.body.isbn = isbn;
+    }
+    // make call to db
+    dao.call('updateBook', { book: req.body, isbn: isbn }, (result) => {
+        if (result.status !== undefined) {
+            res.send(result.status);
+        } else {
+            res.statusCode = 404;
+            res.end();
+        }
+    });
+});
+
+// start the rest service
+var port = 3000;
+console.log('service opening on port: ' + port)
+app.listen(port);

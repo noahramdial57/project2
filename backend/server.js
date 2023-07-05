@@ -26,9 +26,8 @@ module.exports.call = async function call(operation, parameters, callback) {
     switch (operation.toLowerCase()) {
         case 'getPlanets':
             const collectionPlanet = 'planets'
-            await collectionPlanet.find({}).the.toArray();
-            callback({ planets: planets})
-            );
+            await collectionPlanet.find({}).toArray();
+            callback({ planet: planet})
             break;
 
     //     case 'clearbooks':
