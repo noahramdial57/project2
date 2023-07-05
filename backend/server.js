@@ -61,19 +61,21 @@ module.exports.call = async function call(operation, parameters, callback) {
         case 'findfilm':
             collectionName = "films";
             collection = db.collection(collectionName);
+            
             const film = await collection.findOne({id: parameters.id});
+            console.log(typeof(film))
             callback({film: film});
             break;
 
-        /*case 'findfilmcharacters':
-            collectionName = "films";
+        case 'getcharsfromfilm':
+            collectionName = "films_characters";
+            // console.log("we are here now")
             collection = db.collection(collectionName);
-            const filmcharacterid = await collection.find({film_id: parameters.id}).toArray();
-            for (let i = 0; i < filmcharacterid.length; i++){
-                findcharacters("characters", collectionName);
-            }
-            callback({film: film});
-            break;*/
+            var characterS = await collection.find({film_id: parameters}).toArray();
+            
+        
+            callback({chars: characterS});
+            break;
         default:
             break;
     }
