@@ -47,7 +47,7 @@ module.exports.call = async function call(operation, parameters, callback) {
         case 'findplanet':
             collectionName = "planets";
             collection = db.collection(collectionName);
-            const planet = await collection.findOne({ id: parameters.id });
+            const planet = await collection.findOne({ id: parameters });
             callback({ planet:planet });
             break;
         
@@ -63,35 +63,36 @@ module.exports.call = async function call(operation, parameters, callback) {
             collectionName = "films";
             collection = db.collection(collectionName);
             
-            const film = await collection.findOne({id: parameters.id});
+            const film = await collection.findOne({id: parameters});
             console.log(typeof(film))
             callback({film: film});
             break;
 
         case 'getcharsfromfilm':
             collectionName = "films_characters";
-            // console.log("we are here now")
             collection = db.collection(collectionName);
             var characterS = await collection.find({film_id: parameters}).toArray();
-            // let L = new Set()
-            // let final = new Set()
-
-            // for (let i = 0; i < characterS.length; i++){
-
-            //     if (characterS[i]["film_id"] == id){
-            //         // console.log(characterS[i])
-            //         L.add(characterS[i]["character_id"])
-            //     }
-            // }
-
-            // console.log("first call")
-            // console.log(L)
-            
+               
         
             callback({chars: characterS});
             break;
-        // case "clientclose":
-        //     client.close()
+        case 'getplanetsfromfilms':
+            collectionName = "films_planets";
+            collection = db.collection(collectionName);
+            var characterS = await collection.find({film_id: parameters}).toArray();
+                
+        
+            callback({chars: characterS});
+            break;
+
+        case 'getfilmsfromchars':
+            collectionName = "films_characters";
+            collection = db.collection(collectionName);
+            var characterS = await collection.find({film_id: parameters}).toArray();
+                
+        
+            callback({chars: characterS});
+            break;
         default:
             break;
     }
