@@ -54,9 +54,10 @@ module.exports.call = async function call(operation, parameters, callback) {
         case 'findcharacter':
             collectionName = "characters";
             collection = db.collection(collectionName);
-            const character = await collection.findOne({id: parameters.id});
+            const character = await collection.findOne({id: parameters});
             callback({character: character});
-            break;
+            return
+            // break;
         
         case 'findfilm':
             collectionName = "films";
@@ -72,14 +73,29 @@ module.exports.call = async function call(operation, parameters, callback) {
             // console.log("we are here now")
             collection = db.collection(collectionName);
             var characterS = await collection.find({film_id: parameters}).toArray();
+            // let L = new Set()
+            // let final = new Set()
+
+            // for (let i = 0; i < characterS.length; i++){
+
+            //     if (characterS[i]["film_id"] == id){
+            //         // console.log(characterS[i])
+            //         L.add(characterS[i]["character_id"])
+            //     }
+            // }
+
+            // console.log("first call")
+            // console.log(L)
             
         
             callback({chars: characterS});
             break;
+        // case "clientclose":
+        //     client.close()
         default:
             break;
     }
     console.log( 'call complete: ' + operation );
-    client.close();
+    // client.close();
     return 'call complete';
 }

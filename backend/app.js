@@ -75,13 +75,15 @@ app.get("/films/:id", (req, res) => {
 });
 
 //films->characters
-app.get("/api/films/:id/characters", (req, res) => {
+app.get("/api/films/:id/characters", async (req, res) => {
     let parse = req.url.split('/');
     let id = parseInt(parse[3]); // id
-    L = new Set()
+    let L = []
+    var final = []
+
 
     // next get character id's in that film
-    dao.call('getcharsfromfilm', id, (result) => {
+    await dao.call('getcharsfromfilm', id, (result) => {
 
         let characterS = result.chars
         // L = new Set()
@@ -89,28 +91,38 @@ app.get("/api/films/:id/characters", (req, res) => {
 
             if (characterS[i]["film_id"] == id){
                 // console.log(characterS[i])
-                L.add(characterS[i]["character_id"])
+                L.push(characterS[i]["character_id"])
             }
         }
-
-        // console.log(L)
+        console.log("first call")
+        console.log(L)
         // res.send(L)
-   
     });
 
-    let final = new Set()
-    for (let char in L){
-        dao.call('findcharacter', { char }, (result) => {
+
+    console.log('second call')
+    for (let i = 0; i < L.length; i++){
+        await dao.call('findcharacter',  L[i], (result) => {
+            // console.log(result.character)
+            final.push(result.character);
+
             if (result.character !== undefined) {
-                final.add(result.character);
+                // final.push(result.character);
             } else {
                 res.statusCode = 404;
                 res.end();
             }
         });
+        // console.log("second call")
+        // console.log(final)
     }
+
+    // dao.call('clientclose',  {}, {})
+    
+   
     console.log(final)
-    res.send(final)
+    // console.log(final)
+    res.send(JSON.stringify(final))
 });
 
 
